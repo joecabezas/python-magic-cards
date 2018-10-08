@@ -12,16 +12,19 @@ from solid.utils import *
 SEGMENTS = 48
 
 class Cards(object):
-    CARD_SIZE = [85.6, 53.98]
-    CARD_THICKNESS = 2
-    CORNER_RADIUS = 3
+    CARD_SIZE = [85.5, 53.8]
+    CARD_THICKNESS = 0.8
+    CORNER_RADIUS = 2.5
     BORDER_WIDTH = 1
 
-    FONT = 'Arial'
-    FONT_SIZE = 9
+    FONT = 'BigNoodleTitling:style=Oblique'
+    FONT_SIZE = 4.5
+    FONT_COLS = 8
+    FONT_OFFSET = [-39.5, 20.5]
+    FONT_SEPARATION = [10.7, 6.5]
 
-    BORDER_THICKNESS = 0.4
-    FONT_THICKNESS = 0.4
+    BORDER_THICKNESS = 0.2
+    FONT_THICKNESS = 0.2
 
     def __init__(self, quantity):
         self.quantity = quantity
@@ -51,7 +54,7 @@ class Cards(object):
     def render_card(self, exponent):
         c = self.get_card_base()
         n = self.get_numbers_solid(exponent)
-        return c + translate([-40,15,self.CARD_THICKNESS])(n)
+        return c + translate([self.FONT_OFFSET[0], self.FONT_OFFSET[1], self.CARD_THICKNESS])(n)
 
     def get_card_base(self):
         border_factor = list(map(lambda x: (x-self.BORDER_WIDTH)/x, self.CARD_SIZE))
@@ -89,25 +92,26 @@ class Cards(object):
         magic_number = self.magic_number_from_exp(exponent)
         numbers = self.magic_map[magic_number]
 
-        cols = 4
-        col_separation = 22
-        row_separation = 13
+        cols = self.FONT_COLS
+        ox = self.FONT_SEPARATION[0]
+        oy = self.FONT_SEPARATION[1]
 
         final_object = part()
         for i, n in enumerate(numbers):
             number_solid = self.get_number_solid(n)
-            final_object = final_object + back((int(i/cols))*row_separation)(right((i%cols)*col_separation)(number_solid))
+            final_object = final_object + back((int(i/cols))*oy)(right((i%cols)*ox)(number_solid))
 
         return final_object 
 
 
 if __name__ == '__main__':
-    amount_of_cards = 5
-    cards = Cards(5)
+    amount_of_cards = 7
+    cards = Cards(amount_of_cards)
 
     for i in range(amount_of_cards):
         scad_render_to_file(
             cards.render_card(i),
             'out{}.scad'.format(i),
             file_header='$fn = %s;' % SEGMENTS,
+            include_orig_code = False
         )
